@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROGLAZE | Restore Visibility, Improve Safety | Headlight Restoration</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configure Tailwind to use Inter font and our brand colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pro-red': '#D90000',      /* Primary Accent (Urgency, Safety) */
+                        'pro-black': '#1a1a1a',    /* Authority, Professionalism */
+                        'pro-white': '#f9f9f9',    /* Clarity, Contrast */
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom accessibility focus state */
+        .btn-focus:focus {
+            outline: 3px solid #D90000;
+            outline-offset: 3px;
+        }
+        /* Gradient for the red button */
+        .btn-red {
+            background: linear-gradient(145deg, #D90000, #A00000);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        .btn-red:hover {
+            background: linear-gradient(145deg, #A00000, #D90000);
+            box-shadow: 0 8px 12px rgba(217, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        /* Style for zone selection buttons */
+        .zone-btn {
+            transition: all 0.2s;
+            border-width: 2px;
+            border-color: #e5e7eb;
+        }
+        .zone-btn:hover {
+            border-color: #D90000;
+            background-color: #fef2f2;
+        }
+        .zone-btn.selected {
+            border-color: #D90000;
+            background-color: #D90000;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Loading spinner for booking */
+        .loader {
+            border-top-color: #fff;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
+        
+        @-webkit-keyframes spinner {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Custom file input appearance */
+        .file-input-label {
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .file-input-label:hover {
+            background-color: #2c2c2c;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-pro-black font-sans antialiased">
+
+    <!-- Modal for Feedback (Replaces alert()) -->
+    <div id="feedbackModal" class="fixed inset-0 bg-pro-black bg-opacity-75 hidden items-center justify-center z-[999]">
+        <div class="bg-pro-white p-8 rounded-xl shadow-2xl max-w-sm w-full transform transition-all">
+            <h3 id="modalTitle" class="text-2xl font-bold mb-4 text-pro-red"></h3>
+            <p id="modalMessage" class="text-pro-black mb-6"></p>
+            <button onclick="document.getElementById('feedbackModal').classList.add('hidden'); document.getElementById('feedbackModal').classList.remove('flex');" class="w-full btn-red text-pro-white px-4 py-2 rounded-full font-semibold btn-focus">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="bg-gray-50 border-b border-pro-black/10 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <!-- Logo (PRO is RED, GLAZE is BLACK) -->
+            <div class="text-pro-black">
+                <h1 class="text-2xl font-extrabold tracking-wider leading-none">
+                    <span class="text-pro-red">PRO</span><span class="text-pro-black">GLAZE</span>
+                </h1>
+                <p class="text-xs font-normal tracking-widest uppercase text-gray-500 mt-1">HEADLIGHT DETAILING & RESTORATION</p>
+            </div>
+            
+            <!-- Navigation button -->
+            <a href="#inspection" class="hidden sm:inline-block px-4 py-2 text-sm font-semibold text-pro-black border border-pro-black rounded-full hover:bg-pro-red hover:text-pro-white hover:border-pro-red transition duration-300 btn-focus">
+                Start Booking
+            </a>
+            <div class="sm:hidden">
+                <a href="#inspection" class="text-pro-red text-3xl btn-focus">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2-3-.895-3-2 1.343-2 3-2zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative bg-pro-black text-pro-white py-16 sm:py-24 md:py-32 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center">
+                <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight mb-4">
+                    We <span class="text-pro-red">Restore Visibility.</span> We <span class="text-pro-red">Improve Safety.</span>
+                </h1>
+                <p class="text-xl sm:text-2xl font-light max-w-3xl mx-auto mb-8 text-gray-300">
+                    Professional, mobile headlight restoration with a 3-Year UV Ceramic Coating Warranty.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                    <a href="#haze-callout" class="btn-red text-pro-white px-8 py-3 rounded-full font-bold uppercase tracking-wider btn-focus shadow-lg">
+                        Start Booking Process Now
+                    </a>
+                    <a href="#value" class="bg-transparent border border-pro-white text-pro-white px-8 py-3 rounded-full font-bold uppercase tracking-wider hover:bg-pro-white hover:text-pro-black transition duration-300 btn-focus">
+                        Why Choose PROGLAZE?
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Value Proposition Section (Unchanged) -->
+    <section id="value" class="py-16 sm:py-24 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-center mb-12">
+                The PROGLAZE Imperative: Safety First
+            </h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1: Safety -->
+                <div class="bg-pro-black text-pro-white p-6 rounded-xl shadow-2xl transition duration-500 hover:scale-[1.02]">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-pro-red mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 005.618 19.016 11.955 11.955 0 0012 21.056a11.955 11.955 0 008.618-3.04 12.02 12.02 0 00-1.899-11.956z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Road Safety & Visibility</h3>
+                    <p class="text-gray-300">
+                        Hazed headlights reduce night vision by up to **70%**. Our service is not cosmetic—it’s a mandatory safety restoration, ensuring optimal light output for safer driving, especially in adverse weather conditions.
+                    </p>
+                </div>
+
+                <!-- Card 2: Technical Edge -->
+                <div class="bg-pro-black text-pro-white p-6 rounded-xl shadow-2xl transition duration-500 hover:scale-[1.02]">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-pro-red mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">3-Year UV Ceramic Lock</h3>
+                    <p class="text-gray-300">
+                        Forget temporary polishes. Our **Tier 3 Flagship Service** utilizes a permanent UV Ceramic Coating, flash-cured on-site to lock in clarity for a guaranteed 3 years, backed by a written warranty.
+                    </p>
+                </div>
+
+                <!-- Card 3: Convenience -->
+                <div class="bg-pro-black text-pro-white p-6 rounded-xl shadow-2xl transition duration-500 hover:scale-[1.02]">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-pro-red mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Professional Mobile Service</h3>
+                    <p class="text-gray-300">
+                        Our fully equipped mobile unit comes to your home or office. We complete the full restoration in approximately **80 minutes** using our advanced, self-sufficient power and curing equipment.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CRITICAL SAFETY CALLOUT (NOW FOCUSES ON SOLUTION/URGENCY) -->
+    <section id="haze-callout" class="py-16 bg-pro-black text-pro-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-pro-red/10 rounded-xl shadow-2xl overflow-hidden relative min-h-[250px] flex items-center justify-center p-8">
+                <div class="absolute inset-0 bg-pro-black bg-opacity-70 flex items-center justify-center p-8">
+                    <div class="text-center max-w-3xl">
+                        <p class="text-sm font-semibold uppercase tracking-widest text-pro-red mb-2">SERVICE LOGISTICS AND CONVENIENCE</p>
+                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-6 tracking-tight leading-tight">
+                            WE OFFER CONVENIENCE OF A MOBILE SERVICE AND EASE OF PAYMENT WITH PORTABLE CARD MACHINES
+                        </h2>
+                        <p class="text-lg text-gray-300">
+                            The full detailing process is completed at your location, accepting all major card payments on-site—maximizing convenience and minimizing downtime.
+                        </p>
+                        <a href="#inspection" class="mt-8 inline-block btn-red text-pro-white px-8 py-4 rounded-full font-bold uppercase tracking-wider btn-focus shadow-lg">
+                            Start Visual Assessment Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- STEP 1: Visual Assessment (Required) -->
+    <section id="inspection" class="py-16 sm:py-24 bg-gray-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-center mb-12">
+                Step 1: Visual Assessment (Required)
+            </h2>
+            <div class="bg-pro-white p-6 sm:p-8 rounded-xl shadow-2xl border-t-4 border-pro-red">
+                <p class="text-lg font-semibold text-pro-black mb-4">
+                    Upload photos for immediate clarity assessment.
+                </p>
+                <p class="text-gray-600 mb-6 text-sm">
+                    This step ensures we recommend the optimal service tier (from R450 to R950) for your vehicle's condition. Please upload 2-3 photos showing: 1) A close-up of a headlight, and 2) The full front of the vehicle.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
+                    <input type="file" id="imageUpload" accept="image/*" multiple required onchange="handleImageUpload(event)" class="hidden">
+                    
+                    <label for="imageUpload" id="uploadLabel" class="file-input-label flex-grow text-center bg-pro-black text-pro-white px-6 py-3 rounded-full font-bold uppercase tracking-wider btn-focus shadow-lg">
+                        <span id="uploadText">Upload 2-3 Photos Now</span>
+                    </label>
+                    
+                    <a href="#tiers" id="continueButton" class="w-full sm:w-auto px-6 py-3 bg-gray-300 text-gray-700 rounded-full font-bold uppercase tracking-wider pointer-events-none opacity-50 transition duration-300 btn-focus" disabled>
+                        Continue to Step 2
+                    </a>
+                </div>
+                
+                <div id="fileList" class="mt-4 text-sm text-gray-700 space-y-1">
+                    <!-- File names will be inserted here -->
+                </div>
+                <p id="imageValidationMessage" class="text-sm text-pro-red mt-3 hidden">
+                    Please upload at least one photo to proceed.
+                </p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- STEP 2: Pricing Tiers Section (Old Step 1) -->
+    <section id="tiers" class="py-16 sm:py-24 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-center mb-12">
+                Step 2: Select Your Service Tier
+            </h2>
+            <div class="grid md:grid-cols-3 gap-8 items-stretch">
+
+                <!-- Tier 1: Express Refresh -->
+                <div class="bg-pro-white rounded-xl shadow-2xl p-6 flex flex-col justify-between border-t-4 border-gray-400">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2">Tier 1: Express Refresh</h3>
+                        <p class="text-4xl font-extrabold mb-4 text-pro-black">R450</p>
+                        <p class="text-sm text-gray-500 mb-6">Ideal for light hazing and preventative maintenance.</p>
+                        <ul class="space-y-3 text-sm text-pro-black">
+                            <li class="flex items-start"><svg class="h-5 w-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Basic Hand Polish</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Temporary Wax Sealant</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 mr-2 text-pro-red" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>No Sanding Required</li>
+                        </ul>
+                    </div>
+                    <div class="mt-6">
+                        <p class="text-sm font-semibold text-gray-700">3-6 Month Protection</p>
+                        <button id="select-tier-1" onclick="selectTier('Tier 1: Express Refresh', 450, event)" class="block w-full text-center mt-3 bg-pro-black text-pro-white px-6 py-2 rounded-full font-semibold hover:bg-gray-800 transition duration-300 btn-focus">
+                            Select R450 Service
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tier 3: PRO-GLAZE Premium (FLAGSHIP - Highlighted) -->
+                <div class="bg-pro-black text-pro-white rounded-xl shadow-2xl p-8 flex flex-col justify-between ring-4 ring-pro-red relative">
+                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-pro-red text-pro-white text-xs font-bold uppercase px-3 py-1 rounded-full shadow-md">
+                        Flagship Service
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-bold mb-2 text-pro-red">Tier 3: PRO-GLAZE Premium</h3>
+                        <p class="text-5xl font-extrabold mb-4 text-pro-white">R950</p>
+                        <p class="text-sm mb-6 text-gray-300">The ultimate, long-term solution. Factory clarity guaranteed.</p>
+                        <ul class="space-y-3 text-base text-pro-white">
+                            <li class="flex items-start"><svg class="h-6 w-6 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg><span class="font-bold">Full Multi-Step Wet Sanding</span></li>
+                            <li class="flex items-start"><svg class="h-6 w-6 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Advanced Compounding & Polishing</li>
+                            <li class="flex items-start"><svg class="h-6 w-6 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg><span class="font-bold">UV CERAMIC COATING (Cured)</span></li>
+                        </ul>
+                    </div>
+                    <div class="mt-6">
+                        <p class="text-sm font-semibold text-pro-red">3-YEAR WRITTEN WARRANTY</p>
+                        <button id="select-tier-3" onclick="selectTier('Tier 3: PRO-GLAZE Premium', 950, event)" class="block w-full text-center mt-3 btn-red text-pro-white px-6 py-3 rounded-full font-bold uppercase tracking-wider shadow-lg btn-focus">
+                            Secure 3-Year Protection
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tier 2: Standard Restore -->
+                <div class="bg-pro-white rounded-xl shadow-2xl p-6 flex flex-col justify-between border-t-4 border-gray-400">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2">Tier 2: Standard Restore</h3>
+                        <p class="text-4xl font-extrabold mb-4 text-pro-black">R750</p>
+                        <p class="text-sm text-gray-500 mb-6">Excellent value for moderate to severe restoration needs.</p>
+                        <ul class="space-y-3 text-sm text-pro-black">
+                            <li class="flex items-start"><svg class="h-5 w-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Full Multi-Step Wet Sanding</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>Advanced Compounding & Polishing</li>
+                            <li class="flex items-start"><svg class="h-5 w-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>High-Grade Wax Sealant Finish</li>
+                        </ul>
+                    </div>
+                    <div class="mt-6">
+                        <p class="text-sm font-semibold text-gray-700">12 Month Protection</p>
+                        <button id="select-tier-2" onclick="selectTier('Tier 2: Standard Restore', 750, event)" class="block w-full text-center mt-3 bg-pro-black text-pro-white px-6 py-2 rounded-full font-semibold hover:bg-gray-800 transition duration-300 btn-focus">
+                            Select R750 Service
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STEP 3 & 4: Zone Selection and Checkout -->
+    <section id="checkout" class="py-16 sm:py-24 bg-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-center mb-12 text-pro-black">
+                Step 3: Select Your Service Zone & Step 4: Finalize
+            </h2>
+
+            <div class="grid lg:grid-cols-2 gap-12">
+                <!-- Zone Selection (STEP 3) -->
+                <div class="p-6 bg-pro-white rounded-xl shadow-xl border border-gray-100">
+                    <h3 class="text-2xl font-bold mb-4 text-pro-red">Step 3: Mobile Service Zones (Gqeberha)</h3>
+                    <p class="text-sm text-gray-600 mb-6">Select your area for service. Travel fees apply to certain outlying zones.</p>
+
+                    <div id="zone-container" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        <!-- Zones with R0 Travel Fee -->
+                        <button class="zone-btn p-4 rounded-lg bg-gray-100 text-pro-black text-sm font-medium shadow-md" onclick="selectLocation('Summerstrand', 0, event)">Summerstrand</button>
+                        <button class="zone-btn p-4 rounded-lg bg-gray-100 text-pro-black text-sm font-medium shadow-md" onclick="selectLocation('Walmer', 0, event)">Walmer</button>
+                        <button class="zone-btn p-4 rounded-lg bg-gray-100 text-pro-black text-sm font-medium shadow-md" onclick="selectLocation('Newton Park', 0, event)">Newton Park</button>
+                        
+                        <button class="zone-btn p-4 rounded-lg bg-gray-100 text-pro-black text-sm font-medium shadow-md" onclick="selectLocation('Kabega Park/Sherwood', 0, event)">Kabega Park/Sherwood</button>
+                        <button class="zone-btn p-4 rounded-lg bg-gray-100 text-pro-black text-sm font-medium shadow-md" onclick="selectLocation('Sunridge/Lorraine', 0, event)">Sunridge/Lorraine</button>
+                        <button class="zone-btn p-4 rounded-lg bg-gray-100 text-pro-black text-sm font-medium shadow-md" onclick="selectLocation('Parsons Hill', 0, event)">Parsons Hill</button>
+
+                        <!-- NEW ZONES ADDED (R0) -->
+                        <button class="zone-btn p-4 rounded-lg bg-gray-100 text-pro-black text-sm font-medium shadow-md" onclick="selectLocation('Malabar/Westering', 0, event)">Malabar/Westering</button>
+                        <button class="zone-btn p-4 rounded-lg bg-gray-100 text-pro-black text-sm font-medium shadow-md" onclick="selectLocation('Parkside/Cotswold', 0, event)">Parkside/Cotswold</button>
+                        <button class="zone-btn p-4 rounded-lg bg-gray-100 text-pro-black text-sm font-medium shadow-md" onclick="selectLocation('Fernglen/William Moffet', 0, event)">Fernglen/William Moffet</button>
+                        
+                        <!-- Bluewater Bay with R50 FEE -->
+                        <button class="zone-btn p-4 rounded-lg bg-gray-100 text-pro-black text-sm font-medium shadow-md" onclick="selectLocation('Bluewater Bay', 50, event)">Bluewater Bay <span class="text-pro-red font-bold">(R50)</span></button>
+                    </div>
+                    <p class="mt-6 text-sm text-gray-500">
+                        <span id="zone-feedback" class="text-pro-red font-semibold hidden">Please select a service zone to continue.</span>
+                        <span id="zone-fee-info">Note: Standard zones are R0. Bluewater Bay incurs a R50 travel fee.</span>
+                    </p>
+                </div>
+                
+                <!-- Checkout Form (STEP 4) -->
+                <form id="bookingForm" onsubmit="handleBookingSubmit(event)" class="p-6 bg-pro-white rounded-xl shadow-2xl border-t-4 border-pro-red">
+                    <h3 class="text-2xl font-bold mb-4 text-pro-black">Step 4: Confirm & Book</h3>
+
+                    <div class="space-y-4 mb-8">
+                        <div>
+                            <label for="fullName" class="block text-sm font-medium text-gray-700">Name and Surname</label>
+                            <input type="text" id="fullName" name="fullName" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-pro-red focus:border-pro-red" placeholder="e.g., John Smith">
+                        </div>
+                        <div>
+                            <label for="contactNumber" class="block text-sm font-medium text-gray-700">Contact Number</label>
+                            <input type="tel" id="contactNumber" name="contactNumber" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-pro-red focus:border-pro-red" placeholder="e.g., 082 123 4567">
+                        </div>
+                        <div>
+                            <label for="address" class="block text-sm font-medium text-gray-700">Full Service Address</label>
+                            <input type="text" id="address" name="address" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-pro-red focus:border-pro-red" placeholder="Street Address, Suburb">
+                        </div>
+                    </div>
+
+                    <!-- Booking Summary -->
+                    <div class="border-t border-gray-200 pt-4">
+                        <h4 class="text-xl font-bold mb-3 text-pro-red">Booking Summary</h4>
+                        <div class="space-y-2 text-sm">
+                             <p class="flex justify-between font-medium">
+                                <span>Image Files Provided:</span>
+                                <span id="summary-images" class="font-bold text-pro-black">0</span>
+                            </p>
+                            <p class="flex justify-between font-medium">
+                                <span>Selected Service:</span>
+                                <span id="summary-tier" class="font-bold text-pro-black">N/A</span>
+                            </p>
+                            <p class="flex justify-between font-medium">
+                                <span>Service Price:</span>
+                                <span id="summary-price" class="font-bold text-pro-black">R0</span>
+                            </p>
+                            <p class="flex justify-between font-medium">
+                                <span>Service Zone:</span>
+                                <span id="summary-location" class="font-bold text-pro-black">N/A</span>
+                            </p>
+                            <p class="flex justify-between font-medium">
+                                <span>Travel Fee:</span>
+                                <span id="summary-fee" class="font-bold text-pro-black">R0</span>
+                            </p>
+                        </div>
+                        <div class="border-t border-gray-300 mt-4 pt-4 flex justify-between items-center">
+                            <span class="text-xl font-extrabold text-pro-black">TOTAL ESTIMATE:</span>
+                            <span id="summary-total" class="text-2xl font-extrabold text-pro-red">R0</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="book-button" class="mt-8 w-full btn-red text-pro-white px-6 py-3 rounded-full font-bold uppercase tracking-wider shadow-lg btn-focus flex items-center justify-center" disabled>
+                        <span id="button-text">Submit Booking Inquiry</span>
+                        <div id="loading-spinner" class="hidden loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6 ml-3"></div>
+                    </button>
+                    <p id="validation-message" class="text-sm text-center text-red-600 mt-3 hidden">
+                        Please complete all steps (Photos, Tier, and Location) first.
+                    </p>
+                </form>
+
+            </div>
+        </div>
+    </section>
+    
+    <!-- FLEET INQUIRY SECTION (B2B) - NEW -->
+    <section id="fleetInquiry" class="bg-pro-black py-16 sm:py-24">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-pro-white">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-center mb-4">
+                Fleet & B2B Volume Contracts
+            </h2>
+            <p class="text-lg text-gray-300 mb-8 text-center">
+                Secure predictable quality and compliance with our discounted rates for dealerships, fleets, and rental companies. Volume contracts offer up to **90% cost savings** compared to replacement.
+            </p>
+            
+            <form id="fleetForm" onsubmit="handleFleetSubmit(event)" class="bg-pro-white p-6 sm:p-8 rounded-xl shadow-2xl border-t-4 border-pro-red text-pro-black">
+                 <h3 class="text-2xl font-bold mb-6 text-pro-red">Fleet Rate Inquiry</h3>
+                 <div class="space-y-4">
+                    <div>
+                        <label for="companyName" class="block text-sm font-medium text-gray-700">Company Name</label>
+                        <input type="text" id="companyName" name="companyName" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-pro-red focus:border-pro-red" placeholder="e.g., UCM Motors">
+                    </div>
+                    <div>
+                        <label for="contactPerson" class="block text-sm font-medium text-gray-700">Contact Person (Name)</label>
+                        <input type="text" id="contactPerson" name="contactPerson" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-pro-red focus:border-pro-red" placeholder="e.g., John Doe (Fleet Manager)">
+                    </div>
+                    <div>
+                        <label for="fleetContactNumber" class="block text-sm font-medium text-gray-700">Contact Number</label>
+                        <input type="tel" id="fleetContactNumber" name="fleetContactNumber" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-pro-red focus:border-pro-red" placeholder="e.g., 082 123 4567">
+                    </div>
+                    <div>
+                        <label for="fleetSize" class="block text-sm font-medium text-gray-700">Expected Monthly Volume (Pairs of Headlights)</label>
+                        <select id="fleetSize" name="fleetSize" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-pro-red focus:border-pro-red">
+                            <option value="">Select Volume...</option>
+                            <option value="10-25 pairs">10 - 25 pairs</option>
+                            <option value="25-50 pairs">25 - 50 pairs</option>
+                            <option value="50+ pairs">50+ pairs</option>
+                        </select>
+                    </div>
+                 </div>
+                 
+                 <button type="submit" id="fleet-button" class="mt-8 w-full btn-red text-pro-white px-6 py-3 rounded-full font-bold uppercase tracking-wider shadow-lg btn-focus flex items-center justify-center">
+                    <span id="fleet-button-text">Submit Fleet Inquiry</span>
+                    <div id="fleet-loading-spinner" class="hidden loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6 ml-3"></div>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- B2B Call to Action (Updated to link to new section) -->
+    <section class="bg-pro-black py-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-pro-white">
+            <h3 class="text-2xl font-bold mb-3">Are You a Dealership, Fleet, or Rental Company?</h3>
+            <p class="text-lg text-gray-300 mb-6">
+                Our volume contracts offer over **90% cost savings** compared to headlight replacement. Secure predictable quality and compliance.
+            </p>
+            <a href="#fleetInquiry" class="bg-pro-red text-pro-white px-8 py-3 rounded-full font-bold uppercase tracking-wider hover:bg-red-700 transition duration-300 btn-focus">
+                Inquire About Fleet Rates
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer (Unchanged) -->
+    <footer class="bg-gray-50 border-t border-gray-200 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-600">
+            <p class="mb-2">PROGLAZE | Mobile Headlight Restoration Experts | Servicing Gqeberha and Surrounding Areas.</p>
+            <p>
+                <a href="#" class="hover:text-pro-red mx-2">Warranty Terms</a> | 
+                <a href="#" class="hover:text-pro-red mx-2">Careers (Technician Program)</a> | 
+                <a href="mailto:info@proglaze.co.za" class="hover:text-pro-red mx-2">info@proglaze.co.za</a>
+            </p>
+            <p class="mt-4">&copy; 2025 PROGLAZE (Pty) Ltd. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase and Booking Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Set Firestore log level to Debug
+        setLogLevel('Debug');
+
+        // Configuration Constants
+        const EMAIL_RECEIVER = "chazwill31@outlook.com";
+        const EMAIL_ENDPOINT = `https://formsubmit.co/ajax/${EMAIL_RECEIVER}`; // Using AJAX for non-redirect submission
+        const MAX_RETRIES = 5;
+        const BASE_DELAY = 1000; // 1 second
+
+        // Global environment variables (MANDATORY USE)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'proglaze-default-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app, db, auth;
+        let userId = null;
+        
+        // Booking State - Updated to include image details
+        let bookingState = {
+            fileCount: 0,
+            fileNames: [],
+            tierName: null,
+            tierPrice: 0,
+            locationZone: null,
+            travelFee: 0,
+            total: 0
+        };
+
+        // DOM elements for state management
+        const bookButton = document.getElementById('book-button');
+        const continueButton = document.getElementById('continueButton');
+        const uploadText = document.getElementById('uploadText');
+        const fileList = document.getElementById('fileList');
+        const imageValidationMessage = document.getElementById('imageValidationMessage');
+        const buttonText = document.getElementById('button-text');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const fleetButton = document.getElementById('fleet-button');
+        const fleetButtonText = document.getElementById('fleet-button-text');
+        const fleetLoadingSpinner = document.getElementById('fleet-loading-spinner');
+
+
+        // Utility to show custom modal
+        function showModal(title, message, color) {
+            const modal = document.getElementById('feedbackModal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalTitle').classList.remove('text-pro-red', 'text-green-500');
+            document.getElementById('modalTitle').classList.add(color === 'green' ? 'text-green-500' : 'text-pro-red');
+            document.getElementById('modalMessage').textContent = message;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Handle button loading state (B2C)
+        function setButtonLoading(isLoading) {
+            if (isLoading) {
+                bookButton.disabled = true;
+                bookButton.classList.add('opacity-50', 'cursor-not-allowed');
+                buttonText.textContent = "Processing...";
+                loadingSpinner.classList.remove('hidden');
+            } else {
+                // Only re-enable if valid state is met (checked in updateSummary)
+                updateSummary(); 
+                buttonText.textContent = "Submit Booking Inquiry";
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+        
+        // Handle button loading state (B2B)
+        function setFleetButtonLoading(isLoading) {
+            if (isLoading) {
+                fleetButton.disabled = true;
+                fleetButton.classList.add('opacity-50', 'cursor-not-allowed');
+                fleetButtonText.textContent = "Processing...";
+                fleetLoadingSpinner.classList.remove('hidden');
+            } else {
+                fleetButton.disabled = false;
+                fleetButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                fleetButtonText.textContent = "Submit Fleet Inquiry";
+                fleetLoadingSpinner.classList.add('hidden');
+            }
+        }
+
+        // Firebase Initialization and Authentication
+        async function initializeFirebase() {
+            try {
+                if (firebaseConfig) {
+                    app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+                    
+                    // Auth using custom token if available, otherwise anonymously
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    userId = auth.currentUser?.uid || crypto.randomUUID();
+                } else {
+                    console.error("Firebase config is missing.");
+                }
+            } catch (error) {
+                console.error("Firebase initialization failed: ", error);
+            }
+        }
+        
+        // Function to save data to Firestore (Generic)
+        // collectionName is either 'proglaze_bookings' (B2C) or 'proglaze_fleet_leads' (B2B)
+        async function saveData(data, collectionName) {
+            if (!db || !userId) {
+                throw new Error("Firestore not initialized or user not authenticated. Cannot save data.");
+            }
+            
+            // Collection path: /artifacts/{appId}/public/data/{collectionName}
+            const collectionPath = `artifacts/${appId}/public/data/${collectionName}`;
+            
+            for (let i = 0; i < MAX_RETRIES; i++) {
+                try {
+                    await addDoc(collection(db, collectionPath), {
+                        ...data,
+                        userId: userId,
+                        timestamp: serverTimestamp()
+                    });
+                    return true; // Success
+                } catch (e) {
+                    console.error(`Firestore attempt ${i + 1} failed: `, e);
+                    if (i < MAX_RETRIES - 1) {
+                        await new Promise(resolve => setTimeout(resolve, BASE_DELAY * Math.pow(2, i)));
+                    } else {
+                        throw new Error(`Failed to submit data to ${collectionName} after multiple retries.`);
+                    }
+                }
+            }
+        }
+        
+        // Function to send email notification using FormSubmit endpoint (Generic)
+        async function sendNotification(data, type) {
+            const formData = new FormData();
+            const isB2C = type === 'B2C';
+            let subject = "";
+
+            // Add all data fields
+            for (const key in data) {
+                if (data[key] !== null) {
+                    formData.append(key, data[key]);
+                }
+            }
+            
+            if (isB2C) {
+                subject = `PROGLAZE New Booking Inquiry - R${data.total} (${data.locationZone})`;
+                const fileListFormatted = data.imageFilenames.length > 0 ? data.imageFilenames.join(', ') : 'No files attached (Client confirmed upload intention)';
+                formData.append("Image Filenames", fileListFormatted);
+                formData.append("--- NOTE ---", "The physical images were not transmitted via this email. Client confirms files were ready at the time of booking. Contact client for image transmission.");
+            } else { // B2B
+                subject = `PROGLAZE NEW FLEET LEAD: ${data.companyName} (${data.fleetSize})`;
+            }
+
+            formData.append("_subject", subject);
+            
+            for (let i = 0; i < MAX_RETRIES; i++) {
+                try {
+                    const response = await fetch(EMAIL_ENDPOINT, {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (response.ok) return true;
+                } catch (e) {
+                    console.error(`Email attempt ${i + 1} fetch failed for type ${type}: `, e);
+                }
+
+                if (i < MAX_RETRIES - 1) {
+                    await new Promise(resolve => setTimeout(resolve, BASE_DELAY * Math.pow(2, i)));
+                } else {
+                    throw new Error(`Failed to send ${type} notification after multiple retries.`);
+                }
+            }
+        }
+        
+        // Handle Image Upload (Step 1 - B2C)
+        window.handleImageUpload = (event) => {
+            const files = event.target.files;
+            
+            if (files.length === 0) {
+                bookingState.fileCount = 0;
+                bookingState.fileNames = [];
+                uploadText.textContent = "Upload 2-3 Photos Now";
+                fileList.innerHTML = '';
+                imageValidationMessage.classList.remove('hidden');
+            } else {
+                bookingState.fileCount = files.length;
+                bookingState.fileNames = Array.from(files).map(f => f.name);
+                
+                uploadText.textContent = `${files.length} File(s) Selected`;
+                fileList.innerHTML = bookingState.fileNames.map(name => 
+                    `<p class="text-green-600 flex items-center"><svg class="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a2 2 0 00-2 2v2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V8a2 2 0 00-2-2h-2V4a2 2 0 00-2-2H9zm2 6h3v8H7V8h3zm-3-4a1 1 0 011-1h2a1 1 0 011 1v2h-4V4z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>${name} (${(files[Array.from(files).findIndex(f => f.name === name)].size / 1024 / 1024).toFixed(2)} MB)</p>`
+                ).join('');
+                imageValidationMessage.classList.add('hidden');
+            }
+
+            updateSummary();
+            updateContinueButton();
+        };
+
+        function updateContinueButton() {
+             if (bookingState.fileCount > 0) {
+                continueButton.classList.remove('bg-gray-300', 'text-gray-700', 'pointer-events-none', 'opacity-50');
+                continueButton.classList.add('btn-red', 'text-pro-white', 'shadow-lg');
+                continueButton.disabled = false;
+            } else {
+                continueButton.classList.remove('btn-red', 'text-pro-white', 'shadow-lg');
+                continueButton.classList.add('bg-gray-300', 'text-gray-700', 'pointer-events-none', 'opacity-50');
+                continueButton.disabled = true;
+            }
+        }
+
+
+        // Handle Tier Selection (Step 2 - B2C)
+        window.selectTier = (name, price, event) => {
+            bookingState.tierName = name;
+            bookingState.tierPrice = price;
+
+            // Highlight the selected button and remove highlight from others
+            const buttons = document.querySelectorAll('#tiers button');
+            buttons.forEach(btn => btn.closest('div').classList.remove('ring-4', 'ring-pro-red', 'font-bold'));
+            
+            // Find the clicked button's container and highlight it
+            event.currentTarget.closest('div').classList.add('ring-4', 'ring-pro-red', 'font-bold');
+
+            updateSummary();
+        };
+
+        // Handle Location Selection (Step 3 - B2C)
+        window.selectLocation = (zone, fee, event) => {
+            bookingState.locationZone = zone;
+            bookingState.travelFee = fee;
+
+            // Highlight the selected zone button
+            const zoneButtons = document.querySelectorAll('#zone-container button');
+            zoneButtons.forEach(btn => btn.classList.remove('selected'));
+            
+            if (event.target.tagName === 'BUTTON') {
+                event.target.classList.add('selected');
+            } else {
+                 event.target.closest('button').classList.add('selected');
+            }
+            
+            document.getElementById('zone-fee-info').textContent = `Travel Fee: R${fee} (${zone})`;
+            document.getElementById('zone-feedback').classList.add('hidden');
+
+            updateSummary();
+        };
+
+        // Update Summary and Button State (B2C)
+        function updateSummary() {
+            bookingState.total = bookingState.tierPrice + bookingState.travelFee;
+
+            // Update display fields
+            document.getElementById('summary-images').textContent = `${bookingState.fileCount} file(s) ready`;
+            document.getElementById('summary-tier').textContent = bookingState.tierName || 'N/A';
+            document.getElementById('summary-price').textContent = `R${bookingState.tierPrice}`;
+            document.getElementById('summary-location').textContent = bookingState.locationZone || 'N/A';
+            document.getElementById('summary-fee').textContent = `R${bookingState.travelFee}`;
+            document.getElementById('summary-total').textContent = `R${bookingState.total}`;
+            
+            const validationMessage = document.getElementById('validation-message');
+
+            // Enable/Disable button based on all selections (Image, Tier, Zone)
+            if (bookingState.fileCount > 0 && bookingState.tierName && bookingState.locationZone) {
+                bookButton.disabled = false;
+                bookButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                validationMessage.classList.add('hidden');
+            } else {
+                bookButton.disabled = true;
+                bookButton.classList.add('opacity-50', 'cursor-not-allowed');
+                validationMessage.classList.remove('hidden');
+            }
+        }
+        
+        // Handle B2C Form Submission (DB Save + Email Notification)
+        window.handleBookingSubmit = async (event) => {
+            event.preventDefault();
+            setButtonLoading(true);
+
+            if (bookingState.fileCount === 0 || !bookingState.tierName || !bookingState.locationZone) {
+                document.getElementById('validation-message').classList.remove('hidden');
+                setButtonLoading(false);
+                return;
+            }
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const contactNumber = document.getElementById('contactNumber').value.trim();
+            const address = document.getElementById('address').value.trim();
+            
+            if (!fullName || !contactNumber || !address) {
+                showModal("Validation Error", "Please fill in all contact details (Name, Contact, Address).", 'pro-red');
+                setButtonLoading(false);
+                return;
+            }
+
+            // Prepare final data object for Firestore and Email
+            const bookingData = {
+                fullName: fullName,
+                contactNumber: contactNumber,
+                serviceAddress: address,
+                imageFilesCount: bookingState.fileCount,
+                imageFilenames: bookingState.fileNames,
+                ...bookingState, // tierName, tierPrice, locationZone, travelFee, total
+            };
+
+            try {
+                // 1. Save to Firestore (B2C: proglaze_bookings)
+                await saveData(bookingData, 'proglaze_bookings');
+
+                // 2. Send Email Notification (B2C)
+                await sendNotification(bookingData, 'B2C');
+                
+                // 3. Success Feedback and Reset
+                // Clear form and state after success
+                document.getElementById('fullName').value = '';
+                document.getElementById('contactNumber').value = '';
+                document.getElementById('address').value = '';
+                document.getElementById('imageUpload').value = ''; 
+                
+                // Reset state display (visual and internal)
+                bookingState = { fileCount: 0, fileNames: [], tierName: null, tierPrice: 0, locationZone: null, travelFee: 0, total: 0 };
+                updateSummary();
+                updateContinueButton();
+                uploadText.textContent = "Upload 2-3 Photos Now";
+                fileList.innerHTML = '';
+                
+                showModal("Booking Submitted!", 
+                          `Thank you, ${bookingData.fullName}. Your ${bookingData.tierName} inquiry for R${bookingData.total} is logged and your images are ready for assessment. A PROGLAZE technician will contact you shortly.`, 
+                          'green');
+                          
+            } catch (e) {
+                console.error("B2C Booking process failed: ", e);
+                showModal("System Error", "A critical error occurred during B2C submission. Please check the console for details and try again.", 'pro-red');
+            } finally {
+                setButtonLoading(false);
+            }
+        };
+
+        // Handle B2B Form Submission (DB Save + Email Notification)
+        window.handleFleetSubmit = async (event) => {
+            event.preventDefault();
+            setFleetButtonLoading(true);
+
+            const companyName = document.getElementById('companyName').value.trim();
+            const contactPerson = document.getElementById('contactPerson').value.trim();
+            const contactNumber = document.getElementById('fleetContactNumber').value.trim();
+            const fleetSize = document.getElementById('fleetSize').value;
+
+            if (!companyName || !contactPerson || !contactNumber || !fleetSize) {
+                showModal("Validation Error", "Please fill in all fields for the Fleet Inquiry.", 'pro-red');
+                setFleetButtonLoading(false);
+                return;
+            }
+
+            const fleetData = {
+                companyName,
+                contactPerson,
+                contactNumber,
+                fleetSize,
+                leadType: 'B2B Fleet Inquiry'
+            };
+
+            try {
+                // 1. Save to Firestore (B2B: proglaze_fleet_leads)
+                await saveData(fleetData, 'proglaze_fleet_leads');
+
+                // 2. Send Email Notification (B2B)
+                await sendNotification(fleetData, 'B2B');
+
+                // 3. Success Feedback and Reset
+                document.getElementById('fleetForm').reset();
+                showModal("Inquiry Submitted!", 
+                          `Thank you, ${contactPerson} from ${companyName}. Your Fleet Inquiry has been logged. A PROGLAZE executive will contact you to discuss volume pricing and scheduling.`, 
+                          'green');
+                
+            } catch (e) {
+                console.error("B2B Fleet submission failed: ", e);
+                showModal("System Error", "A critical error occurred during B2B submission. Please check the console for details and try again.", 'pro-red');
+            } finally {
+                setFleetButtonLoading(false);
+            }
+        };
+        
+        // Initialize everything on load
+        window.onload = () => {
+             initializeFirebase();
+             updateContinueButton(); // Initial state check
+             updateSummary(); // Initial state check
+        }
+        
+    </script>
+</body>
+</html>
+
+
